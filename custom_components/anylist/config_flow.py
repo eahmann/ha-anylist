@@ -34,6 +34,7 @@ from .const import (
     ANYLIST_MIN_POLL_INTERVAL,
     ANYLIST_REQUEST_TIMEOUT,
     CONF_MEAL_PLAN_CALENDAR,
+    CONF_MEAL_PLAN_ENABLED,
     CONF_POLL_INTERVAL,
     CONF_SELECTED_LISTS,
     DOMAIN,
@@ -301,6 +302,7 @@ class AnyListConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Optional(CONF_MEAL_PLAN_CALENDAR, default=False): bool,
+                    vol.Optional(CONF_MEAL_PLAN_ENABLED, default=False): bool,
                     vol.Optional(
                         CONF_POLL_INTERVAL,
                         default=ANYLIST_DEFAULT_POLL_INTERVAL,
@@ -380,6 +382,11 @@ class AnyListOptionsFlowHandler(config_entries.OptionsFlow):
         schema_dict[vol.Optional(
             CONF_MEAL_PLAN_CALENDAR,
             default=_entry_option(self.config_entry, CONF_MEAL_PLAN_CALENDAR, False),
+        )] = bool
+
+        schema_dict[vol.Optional(
+            CONF_MEAL_PLAN_ENABLED,
+            default=_entry_option(self.config_entry, CONF_MEAL_PLAN_ENABLED, False),
         )] = bool
 
         schema_dict[vol.Optional(

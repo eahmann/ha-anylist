@@ -72,6 +72,7 @@ async def test_user_flow_success(hass: HomeAssistant, poll_interval: int | None)
             result["flow_id"],
             options,
         )
+        await hass.async_block_till_done(wait_background_tasks=True)
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == USER_INPUT[CONF_EMAIL]
@@ -79,6 +80,7 @@ async def test_user_flow_success(hass: HomeAssistant, poll_interval: int | None)
     assert result["options"] == {
         CONF_SELECTED_LISTS: ["list-1"],
         CONF_MEAL_PLAN_CALENDAR: True,
+        "meal_plan_enabled": False,
         CONF_POLL_INTERVAL: poll_interval or ANYLIST_DEFAULT_POLL_INTERVAL,
     }
 
@@ -206,6 +208,7 @@ async def test_options_flow_success(hass: HomeAssistant) -> None:
     assert result["data"] == {
         CONF_SELECTED_LISTS: ["list-1", "list-2"],
         CONF_MEAL_PLAN_CALENDAR: True,
+        "meal_plan_enabled": False,
         CONF_POLL_INTERVAL: 300,
     }
 
@@ -283,7 +286,7 @@ async def test_poll_interval_change_preserves_unavailable_lists(
         )
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["data"] == {**settings, CONF_POLL_INTERVAL: 300}
+    assert result["data"] == {**settings, CONF_POLL_INTERVAL: 300, "meal_plan_enabled": False}
 
 
 async def test_options_flow_handles_list_fetch_failure(hass: HomeAssistant) -> None:
@@ -332,6 +335,7 @@ async def test_reauth_flow_success(hass: HomeAssistant) -> None:
             result["flow_id"],
             {CONF_PASSWORD: "new-secret"},
         )
+        await hass.async_block_till_done(wait_background_tasks=True)
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reauth_successful"
@@ -400,6 +404,9 @@ async def test_reconfigure_flow_success(hass: HomeAssistant) -> None:
             result["flow_id"],
             new_data,
         )
+        # Reconfiguration schedules an entry reload. Keep provider interception
+        # active until setup settles, before HA's shutdown/storage cleanup.
+        await hass.async_block_till_done(wait_background_tasks=True)
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"

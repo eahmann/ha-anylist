@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
+from fractions import Fraction
 import json
 import logging
 import re
@@ -363,12 +364,23 @@ def _parse_list_item(data: bytes, fallback_list_id: str | None = None) -> ListIt
         name=name,
         details=_first_string(fields, 5) or "",
         is_checked=_first_bool(fields, 6),
-        quantity=_first_string(fields, 18),
+        quantity=_item_quantity(fields),
         category=_first_string(fields, 13) or _first_string(fields, 11),
         category_assignment=category_assignment,
         user_id=_first_string(fields, 12),
         product_upc=_first_string(fields, 30),
     )
+
+
+def _item_quantity(fields: dict) -> str | None:
+    """Read the current AnyList quantity before the deprecated field."""
+    raw = _first_value(fields, 21)
+    if isinstance(raw, bytes):
+        quantity = _parse_fields(raw)
+        return _first_string(quantity, 3) or " ".join(
+            value for value in (_first_string(quantity, 1), _first_string(quantity, 2)) if value
+        ) or None
+    return _first_string(fields, 18)
 
 
 def _parse_list_category(
@@ -705,6 +717,7 @@ def _pb_list_item(
             _field_string(3, list_id),
             _field_string(4, name),
             _field_string(18, quantity),
+            _field_message(21, _field_string(3, quantity)) if quantity is not None else b"",
             _field_string(5, details),
             _field_bool(6, checked),
             _field_string(11, category),
@@ -890,19 +903,22 @@ def _extract_icalendar_token(data: bytes) -> str | None:
 
 
 def _scale_quantity(quantity: str, scale: float) -> str:
-    """Scale the first numeric token in a quantity string."""
+    """Scale decimal, fraction, or mixed-number quantities, retaining units."""
     parts = quantity.split()
     if not parts:
         return quantity
 
     try:
-        number = float(parts[0])
-    except ValueError:
+        number = Fraction(parts[0])
+        consumed = 1
+        if len(parts) > 1 and re.fullmatch(r"\d+/\d+", parts[1]):
+            number += Fraction(parts[1])
+            consumed = 2
+    except (ValueError, ZeroDivisionError):
         return quantity
 
-    scaled = number * scale
-    scaled_text = str(int(scaled)) if scaled.is_integer() else str(scaled)
-    rest = " ".join(parts[1:])
+    scaled_text = format(float(number * Fraction(str(scale))), ".12g")
+    rest = " ".join(parts[consumed:])
     return f"{scaled_text} {rest}" if rest else scaled_text
 
 
@@ -1109,6 +1125,16 @@ class AnyListClient:
             list_id=list_id,
             list_item_id=item_id,
             list_item=item,
+        )
+        self.post("data/shopping-lists/update", _pb_list_operation_list([operation]))
+
+    def rename_item(self, list_id: str, item_id: str, name: str) -> None:
+        """Change only the name, preserving quantity, category, and completion."""
+        if not isinstance(name, str) or not name.strip():
+            raise AnyListError("An item name is required")
+        operation = _pb_list_operation(
+            handler_id="set-list-item-name", user_id=self._user_id,
+            list_id=list_id, list_item_id=item_id, updated_value=name,
         )
         self.post("data/shopping-lists/update", _pb_list_operation_list([operation]))
 

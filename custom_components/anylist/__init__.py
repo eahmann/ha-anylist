@@ -61,6 +61,7 @@ from .const import (
     ATTR_SCALE_FACTOR,
     CONF_EMAIL,
     CONF_MEAL_PLAN_CALENDAR,
+    CONF_MEAL_PLAN_ENABLED,
     CONF_PASSWORD,
     CONF_POLL_INTERVAL,
     CONF_SELECTED_LISTS,
@@ -237,6 +238,8 @@ def get_poll_interval(entry: ConfigEntry) -> int:
 def get_platforms(entry: ConfigEntry) -> list[Platform]:
     """Get platforms to load based on config."""
     platforms = list(BASE_PLATFORMS)
+    if _entry_option(entry, CONF_MEAL_PLAN_ENABLED, False):
+        platforms.append(Platform.CALENDAR)
     if _entry_option(entry, CONF_MEAL_PLAN_CALENDAR, False):
         platforms.append(Platform.SENSOR)
     return platforms
@@ -1011,11 +1014,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             )
             icalendar_url = info.url
             if icalendar_url:
-                _LOGGER.info("AnyList meal plan calendar enabled: %s", icalendar_url)
+                _LOGGER.info("AnyList meal plan calendar feed enabled")
             else:
                 _LOGGER.warning("Failed to get iCalendar URL from AnyList")
-        except Exception as err:
-            _LOGGER.warning("Failed to enable iCalendar: %s", err)
+        except Exception:
+            _LOGGER.warning("Failed to enable the AnyList iCalendar feed")
 
     async def async_update_data() -> dict[str, Any]:
         """Fetch data from AnyList."""

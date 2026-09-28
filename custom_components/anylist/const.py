@@ -5,6 +5,7 @@ DOMAIN = "anylist"
 CONF_EMAIL = "email"
 CONF_PASSWORD = "password"
 CONF_MEAL_PLAN_CALENDAR = "meal_plan_calendar"
+CONF_MEAL_PLAN_ENABLED = "meal_plan_enabled"
 CONF_SELECTED_LISTS = "selected_lists"
 CONF_POLL_INTERVAL = "poll_interval"
 

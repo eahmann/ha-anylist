@@ -352,6 +352,14 @@ class AnyListTodoEntity(CoordinatorEntity, TodoListEntity):
 
     async def async_update_todo_item(self, item: TodoItem) -> None:
         """Update an item on the list."""
+        current = next((saved for saved in self.todo_items if saved.uid == item.uid), None)
+        if current is None:
+            raise HomeAssistantError("This item is no longer available. Refresh the list.")
+        if item.summary is not None and item.summary != current.summary:
+            await self._async_call_client(
+                "rename todo item", self._client.rename_item,
+                self._list_id, item.uid, item.summary,
+            )
         if item.status == TodoItemStatus.COMPLETED:
             await self._async_call_client(
                 "complete todo item",
@@ -359,7 +367,7 @@ class AnyListTodoEntity(CoordinatorEntity, TodoListEntity):
                 self._list_id,
                 item.uid,
             )
-        else:
+        elif item.status == TodoItemStatus.NEEDS_ACTION:
             await self._async_call_client(
                 "uncheck todo item",
                 self._client.uncheck_item,

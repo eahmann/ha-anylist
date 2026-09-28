@@ -29,11 +29,13 @@
         "description": "Configure additional features for your AnyList integration.",
         "data": {
           "meal_plan_calendar": "Enable Meal Plan Calendar URL",
-          "poll_interval": "Polling Interval"
+          "poll_interval": "Polling Interval",
+          "meal_plan_enabled": "Meal planning"
         },
         "data_description": {
           "meal_plan_calendar": "Expose a diagnostic sensor containing the AnyList meal plan iCalendar URL.",
-          "poll_interval": "How often to poll AnyList for changes, in seconds (60 to 3600). Lower values update faster but make more cloud requests."
+          "poll_interval": "How often to poll AnyList for changes, in seconds (60 to 3600). Lower values update faster but make more cloud requests.",
+          "meal_plan_enabled": "Create a native meal calendar and enable permission-checked meal actions. Does not require an iCalendar feed."
         }
       },
       "reauth_confirm": {
@@ -72,12 +74,14 @@
         "data": {
           "selected_lists": "Shopping Lists",
           "meal_plan_calendar": "Enable Meal Plan Calendar URL",
-          "poll_interval": "Polling Interval"
+          "poll_interval": "Polling Interval",
+          "meal_plan_enabled": "Meal planning"
         },
         "data_description": {
           "selected_lists": "The AnyList shopping lists to expose as Home Assistant todo entities.",
           "meal_plan_calendar": "Expose a diagnostic sensor containing the AnyList meal plan iCalendar URL.",
-          "poll_interval": "How often to poll AnyList for changes, in seconds (60 to 3600). Lower values update faster but make more cloud requests."
+          "poll_interval": "How often to poll AnyList for changes, in seconds (60 to 3600). Lower values update faster but make more cloud requests.",
+          "meal_plan_enabled": "Create a native meal calendar and enable permission-checked meal actions. Does not require an iCalendar feed."
         }
       }
     }
@@ -213,6 +217,110 @@
         "include_steps": {
           "name": "Include preparation steps",
           "description": "Include preparation steps in the returned recipe."
+        }
+      }
+    },
+    "get_meal_plan": {
+      "name": "Get meal plan",
+      "description": "Read the native AnyList meal calendar, labels, recipe links, and edit versions.",
+      "fields": {
+        "entity_id": {
+          "name": "Meal calendar",
+          "description": "The exact AnyList meal calendar to use."
+        }
+      }
+    },
+    "create_meal": {
+      "name": "Create meal",
+      "description": "Schedule a recipe or freeform meal in AnyList and confirm its saved record.",
+      "fields": {
+        "entity_id": {
+          "name": "Meal calendar",
+          "description": "The exact AnyList meal calendar to use."
+        },
+        "date": {
+          "name": "Date",
+          "description": "Local meal date in YYYY-MM-DD format."
+        },
+        "title": {
+          "name": "Title",
+          "description": "Meal title, required when no recipe is selected."
+        },
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "Exact AnyList recipe ID from the same account."
+        },
+        "details": {
+          "name": "Notes",
+          "description": "Meal notes. Empty text clears existing notes when editing."
+        },
+        "label_id": {
+          "name": "Label ID",
+          "description": "Exact label ID from get_meal_plan, such as the Dinner label."
+        },
+        "scale_factor": {
+          "name": "Serving scale",
+          "description": "Recipe serving multiplier, greater than zero and at most 100."
+        }
+      }
+    },
+    "update_meal": {
+      "name": "Update meal",
+      "description": "Edit or move one meal using its current version. Omitted fields are preserved.",
+      "fields": {
+        "entity_id": {
+          "name": "Meal calendar",
+          "description": "The exact AnyList meal calendar to use."
+        },
+        "event_id": {
+          "name": "Event ID",
+          "description": "Exact meal event ID from get_meal_plan."
+        },
+        "expected_version": {
+          "name": "Expected version",
+          "description": "Current version from get_meal_plan. Refresh if the meal changed."
+        },
+        "date": {
+          "name": "Date",
+          "description": "New local date in YYYY-MM-DD format to move the meal."
+        },
+        "title": {
+          "name": "Title",
+          "description": "Meal title, required when no recipe is selected."
+        },
+        "recipe_id": {
+          "name": "Recipe ID",
+          "description": "Exact AnyList recipe ID from the same account."
+        },
+        "details": {
+          "name": "Notes",
+          "description": "Meal notes. Empty text clears existing notes when editing."
+        },
+        "label_id": {
+          "name": "Label ID",
+          "description": "Exact label ID from get_meal_plan, such as the Dinner label."
+        },
+        "scale_factor": {
+          "name": "Serving scale",
+          "description": "Recipe serving multiplier, greater than zero and at most 100."
+        }
+      }
+    },
+    "delete_meal": {
+      "name": "Delete meal",
+      "description": "Delete the exact meal and confirm its absence. Does not delete its recipe.",
+      "fields": {
+        "entity_id": {
+          "name": "Meal calendar",
+          "description": "The exact AnyList meal calendar to use."
+        },
+        "event_id": {
+          "name": "Event ID",
+          "description": "Exact meal event ID from get_meal_plan."
+        },
+        "expected_version": {
+          "name": "Expected version",
+          "description": "Current version from get_meal_plan. Refresh if the meal changed."
         }
       }
     }
