@@ -1,12 +1,15 @@
 {
   "domain": "anylist",
   "name": "AnyList",
-  "codeowners": ["@moryoav"],
+  "codeowners": [
+    "@eahmann",
+    "@moryoav"
+  ],
   "config_flow": true,
-  "documentation": "https://github.com/moryoav/ha-anylist",
+  "documentation": "https://github.com/eahmann/ha-anylist",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/moryoav/ha-anylist/issues",
+  "issue_tracker": "https://github.com/eahmann/ha-anylist/issues",
   "requirements": [],
-  "version": "0.7.0"
+  "version": "0.8.0b1"
 }

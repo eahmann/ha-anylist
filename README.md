@@ -3,6 +3,12 @@
 
 ---
 
+## Family Hub fork — 0.8.0b1
+
+This fork adds native meal-plan viewing and create/edit/move/delete actions, safe grocery renames, and current ingredient quantities. AnyList remains authoritative. See [the contract, permissions, protocol evidence, and live-validation limits](docs/meal-planning.md).
+
+This is a development prerelease, tested with synthetic provider records on HA 2026.9.3. Household AnyList verification and the Family Hub Meals UI are still pending. To use this fork, add `https://github.com/eahmann/ha-anylist` as an **Integration** custom repository in HACS and enable prereleases after a release is published; do not install a second copy alongside another AnyList integration. The instructions below describe upstream.
+
 ## Support me on Ko-fi
 
 If this project is useful to you, you can support its continued development:

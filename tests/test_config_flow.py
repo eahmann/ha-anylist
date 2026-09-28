@@ -79,6 +79,7 @@ async def test_user_flow_success(hass: HomeAssistant, poll_interval: int | None)
     assert result["options"] == {
         CONF_SELECTED_LISTS: ["list-1"],
         CONF_MEAL_PLAN_CALENDAR: True,
+        "meal_plan_enabled": False,
         CONF_POLL_INTERVAL: poll_interval or ANYLIST_DEFAULT_POLL_INTERVAL,
     }
 
@@ -206,6 +207,7 @@ async def test_options_flow_success(hass: HomeAssistant) -> None:
     assert result["data"] == {
         CONF_SELECTED_LISTS: ["list-1", "list-2"],
         CONF_MEAL_PLAN_CALENDAR: True,
+        "meal_plan_enabled": False,
         CONF_POLL_INTERVAL: 300,
     }
 
@@ -283,7 +285,7 @@ async def test_poll_interval_change_preserves_unavailable_lists(
         )
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["data"] == {**settings, CONF_POLL_INTERVAL: 300}
+    assert result["data"] == {**settings, CONF_POLL_INTERVAL: 300, "meal_plan_enabled": False}
 
 
 async def test_options_flow_handles_list_fetch_failure(hass: HomeAssistant) -> None:

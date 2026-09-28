@@ -30,3 +30,6 @@ config/
 # Local agent notes
 AGENTS.md
 agents.md
+
+# Local audit and release evidence
+.local/

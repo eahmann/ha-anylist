@@ -1,3 +1,95 @@
+get_meal_plan:
+  name: Get meal plan
+  description: Read the native AnyList meal calendar, labels, recipe links, and edit versions.
+  fields:
+    entity_id: &meal_entity
+      name: Meal calendar
+      description: The exact AnyList meal calendar to use.
+      required: true
+      selector:
+        entity:
+          filter:
+            domain: calendar
+            integration: anylist
+
+create_meal:
+  name: Create meal
+  description: Schedule a recipe or freeform meal in AnyList and confirm its saved record.
+  fields:
+    entity_id: *meal_entity
+    date:
+      name: Date
+      description: Local meal date in YYYY-MM-DD format.
+      required: true
+      selector:
+        date:
+    title: &meal_title
+      name: Title
+      description: Meal title, required when no recipe is selected.
+      selector:
+        text:
+    recipe_id: &meal_recipe
+      name: Recipe ID
+      description: Exact AnyList recipe ID from the same account.
+      selector:
+        text:
+    details: &meal_details
+      name: Notes
+      description: Meal notes. Empty text clears existing notes when editing.
+      selector:
+        text:
+          multiline: true
+    label_id: &meal_label
+      name: Label ID
+      description: Exact label ID from get_meal_plan, such as the Dinner label.
+      selector:
+        text:
+    scale_factor: &meal_scale
+      name: Serving scale
+      description: Recipe serving multiplier, greater than zero and at most 100.
+      selector:
+        number:
+          min: 0.01
+          max: 100
+          step: 0.01
+          mode: box
+
+update_meal:
+  name: Update meal
+  description: Edit or move one meal using its current version. Omitted fields are preserved.
+  fields:
+    entity_id: *meal_entity
+    event_id: &meal_event
+      name: Event ID
+      description: Exact meal event ID from get_meal_plan.
+      required: true
+      selector:
+        text:
+    expected_version: &meal_version
+      name: Expected version
+      description: Current version from get_meal_plan. Refresh if the meal changed.
+      required: true
+      selector:
+        text:
+    date:
+      name: Date
+      description: New local date in YYYY-MM-DD format to move the meal.
+      selector:
+        date:
+    title: *meal_title
+    recipe_id: *meal_recipe
+    details: *meal_details
+    label_id: *meal_label
+    scale_factor: *meal_scale
+
+delete_meal:
+  name: Delete meal
+  description: Delete the exact meal and confirm its absence. Does not delete its recipe.
+  fields:
+    entity_id: *meal_entity
+    event_id: *meal_event
+    expected_version: *meal_version
+
 refresh:
   name: Refresh
   description: Refresh lists and favourites for a loaded AnyList account.
