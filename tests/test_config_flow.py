@@ -72,6 +72,7 @@ async def test_user_flow_success(hass: HomeAssistant, poll_interval: int | None)
             result["flow_id"],
             options,
         )
+        await hass.async_block_till_done(wait_background_tasks=True)
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == USER_INPUT[CONF_EMAIL]
@@ -334,6 +335,7 @@ async def test_reauth_flow_success(hass: HomeAssistant) -> None:
             result["flow_id"],
             {CONF_PASSWORD: "new-secret"},
         )
+        await hass.async_block_till_done(wait_background_tasks=True)
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reauth_successful"
@@ -402,6 +404,9 @@ async def test_reconfigure_flow_success(hass: HomeAssistant) -> None:
             result["flow_id"],
             new_data,
         )
+        # Reconfiguration schedules an entry reload. Keep provider interception
+        # active until setup settles, before HA's shutdown/storage cleanup.
+        await hass.async_block_till_done(wait_background_tasks=True)
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"
